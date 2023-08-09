@@ -35,7 +35,7 @@ vector<string> split(const std::string& str,string delim)
           if(!found)
             throw std::logic_error("Expected double quote to match '\"' at "+to_string(lineno)+":"+to_string(k-1));
           curr+= str.substr(k,j -k);
-          k = j+1;
+          k = j;
           lineno = newlineno;
           continue;
         }
@@ -94,12 +94,13 @@ public:
     while(fin.get(ch))
       content+=ch;
     fin.close();
-
+    cout<<(content[content.length()-2] == '\r')<<endl;
     vector<string> rows = split(content,"\r\n");
+    
     if(rows.size() == 0) //empty file
       return;
     headings = split(rows[0],",");
-    if(rows.size() == 1)
+    if(rows.size() == 1)//only headings, no data
       return;
     size_t k = 1;
     len = rows.size();
@@ -108,7 +109,7 @@ public:
         matrix.push_back(split(rows[k],","));
         if(matrix.back().size() != headings.size())
         {
-            throw std::logic_error("Row "+
+            throw std::logic_error("Line "+
             to_string(k+1)+
             " has "+
             to_string(matrix.back().size())+
@@ -197,16 +198,21 @@ public:
 };
 int main()
 {
-  /*string str = "a,b,\"c,d,e\"";
-  vector<string> parts = split(str,",");
+/*  string str = "name,age,sex\r\nShahryar,21,Male\r\nAbdul Arham,20,\"Male\"\r\n";
+  vector<string> parts = split(str,"\r\n");
+  cout<<parts.size()<<endl;
+  int i = 1;
   for(auto part: parts)
-    cout<<part<<endl;*/
+  {
+    cout<<i<<" "<<part<<endl;
+    i++;
+  }*/
   CSV csv;
   csv.loadFromFile("demo.csv");
-  csv[1][2] = "Khusra";
+  csv[1][2] = "Email";
   csv.addColumn("degree");
   csv[0][3] = "BSCS";
-  csv.addRow(/*vector<string>{"Hamza","20","Male","BSCS"}*/);
+  csv.addRow(vector<string>{"Hamza","20","Male","BSCS"});
   csv.display();
 
   csv.writeToFile("out.csv");
